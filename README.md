@@ -1,1 +1,1 @@
-Pro Micro code modified from https://github.com/Pachin0/benv2/blob/main/src/main.cpp
+Pico 2 W code developed based on examples available in Raspberry Pi Pico Extension for VS Code (required to build Pico code)

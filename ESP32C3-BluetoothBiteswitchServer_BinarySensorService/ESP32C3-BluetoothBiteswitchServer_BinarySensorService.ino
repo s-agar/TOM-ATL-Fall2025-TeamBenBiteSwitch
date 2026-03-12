@@ -4,21 +4,26 @@
     updates by chegewara
 */
 
-#include <BLEDevice.h>
+// #include <BLEDevice.h>
 #include <BLEUtils.h>
 #include <BLEServer.h>
 #include <BLE2902.h> // <-- ADD THIS LINE
+#include <BLEDevice.h>
 
-// See the following for generating UUIDs:
-// https://www.uuidgenerator.net/
+// See the following for finding UUIDs:
+// https://www.bluetooth.com/wp-content/uploads/Files/Specification/HTML/Assigned_Numbers/out/en/Assigned_Numbers.pdf
 
-#define SERVICE_UUID        "4fafc201-1fb5-459e-8fcc-c5c9c331914b"
-#define CHARACTERISTIC_UUID "beb5483e-36e1-4688-b7f5-ea07361b26a8"
+#define SERVICE_UUID        "183b" // Binary Sensor Service 0x183B
+#define CHARACTERISTIC_UUID "2a06" // Alert Level 0x2A06
 
 BLECharacteristic *pCharacteristic;
 bool deviceConnected = false;
-const int sensorPin = D0;
-int lastSensorState = HIGH;
+const int leftClickPin = D0;
+const int rightClickPin = D1;
+int lastLeftClickState = HIGH;
+int lastRightClickState = HIGH;
+int16_t clickDataHundredths = 0000;
+uint8_t clickData[2];
 
 class MyServerCallbacks: public BLEServerCallbacks {
     void onConnect(BLEServer* pServer) {
@@ -38,7 +43,8 @@ void setup() {
   Serial.begin(115200);
   Serial.println("Starting BLE work!");
 
-  pinMode(sensorPin, INPUT_PULLUP);
+  pinMode(leftClickPin, INPUT_PULLUP);
+  pinMode(rightClickPin, INPUT_PULLUP);
 
   BLEDevice::init("Long name works now");
   BLEServer *pServer = BLEDevice::createServer();
@@ -49,7 +55,7 @@ void setup() {
 
   pCharacteristic->addDescriptor(new BLE2902());
 
-  pCharacteristic->setValue("Hello World says Shourya");
+  pCharacteristic->setValue("Hello World says Biteswitch");
   pService->start();
   // BLEAdvertising *pAdvertising = pServer->getAdvertising();  // this still is working for backward compatibility
   BLEAdvertising *pAdvertising = BLEDevice::getAdvertising();
@@ -64,21 +70,30 @@ void setup() {
 void loop() {
   // put your main code here, to run repeatedly:
   if (deviceConnected) {
-    int currentSensorState = digitalRead(sensorPin);
-    Serial.println(currentSensorState);
-    if (currentSensorState != lastSensorState) {
-      if (currentSensorState == LOW) {
-        Serial.println("Sensor LOW. Notifying '1'.");
-        pCharacteristic->setValue("1");
-        pCharacteristic->notify();
-      } else {
-        Serial.println("Sensor HIGH. Notifying '0'.");
-        pCharacteristic->setValue("0");
-        pCharacteristic->notify();
+    int currentLeftClickState = digitalRead(leftClickPin);
+    int currentRightClickState = digitalRead(rightClickPin);
+    Serial.print(currentLeftClickState);
+    Serial.print(" ");
+    Serial.println(currentRightClickState);
+    
+    if (currentLeftClickState != lastLeftClickState || currentRightClickState != lastRightClickState) {
+      clickDataHundredths = 0;
+      if (currentLeftClickState == LOW) {
+        Serial.println("Left Click LOW.");
+        clickDataHundredths += 1;
       }
-      lastSensorState = currentSensorState;
+      if (currentRightClickState == LOW) {
+        Serial.println("Right Click LOW.");
+        clickDataHundredths += 2;
+      }
+
+      clickData[0] = clickDataHundredths & 0xFF;
+      clickData[1] = (clickDataHundredths >> 8) & 0xFF;
+      pCharacteristic->setValue(clickData, 2);
+      pCharacteristic->notify();
+      lastLeftClickState = currentLeftClickState;
+      lastRightClickState = currentRightClickState;
       delay(10);
     }
   }
-  delay(100);
 }
