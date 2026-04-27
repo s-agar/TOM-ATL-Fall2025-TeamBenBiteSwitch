@@ -18,16 +18,16 @@
 
 BLECharacteristic *pCharacteristic;
 bool deviceConnected = false;
-const int inputXPin = A0;
-const int inputYPin = A2;
+const int inputXPin = A2;
+const int inputYPin = A0;
 
 int lastX = 0;
 int lastY = 0;
 
 uint8_t joystickData[4];
 
-int centerX = 2295;
-int centerY = 2271;
+int centerX = 2280;
+int centerY = 1799;
 
 int scaleAxis(int reading, int center) {
   int var = 0;
@@ -90,7 +90,7 @@ void loop() {
   // put your main code here, to run repeatedly:
   if (deviceConnected) {
     int currentX = analogRead(inputXPin);
-    int currentY = analogRead(inputYPin);
+    int currentY = 4096 - analogRead(inputYPin);
     Serial.print("X: ");
     Serial.println(currentX);
     Serial.print("Y: ");
