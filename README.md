@@ -1,6 +1,6 @@
 # Introduction
 
-Welcome to the code repository for Ben's Joystick and Bite Switch! This [Tikkun Olam Makers](https://tomglobal.org/) project was created by students at Georgia Tech in order to help Ben Oxley, an individual with cerebral palsy, use his computer more easily. You can find more information about the project [here](todo).
+Welcome to the code repository for Ben's Joystick and Bite Switch! This [Tikkun Olam Makers](https://tomglobal.org/) project was created by students at Georgia Tech in order to help Ben Oxley, an individual with cerebral palsy to more easily control his computer using a customized joystick and bite switch interface. You can find more information about the project [here](todo).
 
 # Preparation
 
@@ -20,3 +20,56 @@ Connect the bite switch Transmitter MCU Board (Xiao ESP32C3) to your computer vi
 
 ## Joystick
 Connect the joystick Transmitter MCU Board (Xiao ESP32C3) to your computer via a USB-C Cable, open your IDE, select the ESP32C3 board option, and upload the [joystick control firmware](ESP32C3-BluetoothJoystickServer_AutomationIOService).
+
+# Troubleshooting
+
+## Joystick Drift
+**Symptom:** The joystick cursor moves on its own without user input.
+
+**Solution:** Recalibrate the center values in the joystick firmware.
+
+1. Open `ESP32C3-BluetoothJoystickServer_AutomationIOService.ino`
+2. With the joystick at rest (centered), read the raw X and Y values from the Serial Monitor
+3. Update the `centerX` and `centerY` variables at the top of the file with these values:
+   ```cpp
+   int centerX = <your_calibrated_X_value>;
+   int centerY = <your_calibrated_Y_value>;
+   ```
+4. Re-upload the firmware to the joystick ESP32C3 board
+
+## Joystick Directions are Wrong
+**Symptom:** Joystick movements don't correspond to expected directions (e.g., pushing up moves the cursor down, or pushing left moves it up).
+
+**Solution:** Either switch the X and Y pin assignments or flip the joystick axis values.
+
+**Option 1 - Swap X and Y Pins (if up is down and left is right):**
+1. Open `ESP32C3-BluetoothJoystickServer_AutomationIOService.ino`
+2. Swap the pin assignments:
+   ```cpp
+   const int inputXPin = A0;  // Was A2
+   const int inputYPin = A2;  // Was A0
+   ```
+3. Re-upload the firmware
+
+**Option 2 - Flip Axis Values (if movement is rotated 90 degrees):**
+1. Open `ESP32C3-BluetoothJoystickServer_AutomationIOService.ino`
+2. For the Y-axis, the line `int currentY = 4096 - analogRead(inputYPin);` already inverts the Y value. To flip the X-axis instead, change this line to:
+   ```cpp
+   int currentX = 4096 - analogRead(inputXPin);
+   int currentY = analogRead(inputYPin);
+   ```
+   Or adjust as needed based on which axes need to be flipped
+3. Re-upload the firmware
+
+## Left Switch Corresponds to Right Click and Vice Versa
+**Symptom:** The left bite switch triggers a right click and the right bite switch triggers a left click.
+
+**Solution:** Flip the left and right pin assignments.
+
+1. Open `ESP32C3-BluetoothBiteswitchServer_BinarySensorService.ino`
+2. Swap the pin assignments:
+   ```cpp
+   const int leftClickPin = D1;   // Was D0
+   const int rightClickPin = D0;  // Was D1
+   ```
+3. Re-upload the firmware to the bite switch ESP32C3 board
