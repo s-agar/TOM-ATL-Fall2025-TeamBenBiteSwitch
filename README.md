@@ -4,9 +4,11 @@ Welcome to the code repository for Ben's Joystick and Bite Switch! This [Tikkun 
 
 # Preparation
 
+Download and install [VS Code](https://code.visualstudio.com/download) and the [Arduino IDE](https://www.arduino.cc/en/software/) if you don't have them already.
+
 To prepare your ESP32C3 boards, here's a tutorial: [https://wiki.seeedstudio.com/XIAO_ESP32C3_Getting_Started/](https://wiki.seeedstudio.com/XIAO_ESP32C3_Getting_Started/#getting-started).
 
-The Pico 2 W code is based on examples available in the Raspberry Pi Pico Extension for VS Code. This extension is required to build the Pico code; add this extension to VS Code in order to program the Pico. Here's a tutorial on how to do so: https://www.raspberrypi.com/news/get-started-with-raspberry-pi-pico-series-and-vs-code/.
+The Pico 2 W code is based on examples available in the Raspberry Pi Pico Extension for VS Code. This extension is required to build the Pico code; you should add this extension to VS Code in order to program the Pico. Here's a tutorial on how to do so: https://www.raspberrypi.com/news/get-started-with-raspberry-pi-pico-series-and-vs-code/.
 
 # Uploading Programs
 
